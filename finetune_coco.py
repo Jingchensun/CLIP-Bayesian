@@ -15,9 +15,22 @@ model = CLIPModel.from_pretrained(model_name).to(device)
 optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 num_epochs = 10
 
+
+a_plus = 5.0  
+b_plus = 0.0
+a_mius = 10.0
+b_mius = 0.0
+
+a_u = 1.0   
+b_u = 0.0
+
+w_plus = torch.random.gamma(a_plus, b_plus)
+w_minus = torch.random.gamma(a_mius, b_mius)
+
+
 # Stochastic EM iterations
 for epoch in range(num_epochs):
-    for batch in dataloader:
+    for (i, batch) in dataloader:
         image_inputs = batch['image'].to(device)  # Image data
         text_inputs = batch['text']  # Text descriptions
         
@@ -27,9 +40,14 @@ for epoch in range(num_epochs):
         similarity_scores = torch.matmul(image_features, text_features.t())
 
         # Step 5: Simulate auxiliary random variables and weights (needs to be implemented based on model-specific requirements)
-        u = torch.rand(image_inputs.shape[0], device=device)  # Example random auxiliary variable
-        w_plus = torch.rand(image_inputs.shape[0], device=device)  # Example positive pair weights
-        w_minus = torch.rand(image_inputs.shape[0], image_inputs.shape[0], device=device)  # Example negative pair weights
+        if i ==0:
+            u_i = torch.random.gamma(a_u, b_u + w_plus * similarity_scores)
+        else:
+            u_i =
+
+        w_plus = torch.random.gamma(1 + a_plus, u_i * similarity_scores[:, 0] + b_plus)
+        w_minus = torch.random.gamma(a_mius , u_i * torch.sum(w_minus * similarity_scores, dim=1) + b_mius)
+
 
         # Step 6: Calculate weighted contrastive loss
         contrastive_loss = -torch.log(F.softmax(similarity_scores, dim=1)[:, 0])  # Consider only the first column as positive
