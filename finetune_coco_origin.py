@@ -78,6 +78,11 @@ for epoch in range(EPOCH):
         images = torch.tensor(np.stack(list_image)).to(device)
         texts = clip.tokenize(list_txt).to(device) #torch.Size([32, 77])
          # print(texts.size()) #torch.Size([32, 77])
+
+        image_features= model.encode_image(images)
+        text_features = model.encode_text(texts)
+        print(image_features.size(), text_features.size(), ">>>>>>")
+
         logits_per_image, logits_per_text = model(images, texts)
         ground_truth = torch.arange(BATCH_SIZE,dtype=torch.long,device=device)
 
